@@ -2,6 +2,17 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+
+// Petit serveur HTTP pour que Render considère le bot comme "en ligne"
+// (nécessaire car Render attend une réponse HTTP pour les Web Services)
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot Douanes en ligne.');
+}).listen(PORT, () => {
+  console.log(`🌐 Serveur HTTP de keep-alive lancé sur le port ${PORT}`);
+});
 
 const client = new Client({
   intents: [
