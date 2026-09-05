@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { loadData, saveData, formatDuree } = require('../utils/storage');
+const { loadData, saveData, formatDuree, incrementerServices } = require('../utils/storage');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -28,15 +28,16 @@ module.exports = {
     const duree = maintenant.getTime() - debut;
     const dureeFormatee = formatDuree(duree);
 
-    // Retire le service actif une fois terminé
     delete data.active[interaction.user.id];
+    incrementerServices(data, interaction.user.id);
     saveData(data);
 
+    const totalServices = data.stats[interaction.user.id].totalServices;
     const date = maintenant.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
     const heure = maintenant.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' });
 
     await interaction.reply(
-      `🔴 **Fin de service confirmée**\n👤 Agent : ${interaction.user}\n📅 Date : ${date}\n🕒 Heure : ${heure}\n⏱️ Durée du service : ${dureeFormatee}`
+      `🔴 **Fin de service confirmée**\n👤 Agent : ${interaction.user}\n📅 Date : ${date}\n🕒 Heure : ${heure}\n⏱️ Durée du service : ${dureeFormatee}\n📊 Total services effectués : ${totalServices}`
     );
   },
 };
