@@ -4,14 +4,19 @@ const path = require('path');
 const DATA_PATH = path.join(__dirname, '..', 'data', 'service-data.json');
 
 // Structure du fichier :
-// { "active": { "userId": timestampDeDebut } }
+// {
+//   "active": { "userId": timestampDeDebut },
+//   "stats": { "userId": { "totalServices": n } }
+// }
 
 function loadData() {
   if (!fs.existsSync(DATA_PATH)) {
-    return { active: {} };
+    return { active: {}, stats: {} };
   }
   const raw = fs.readFileSync(DATA_PATH, 'utf-8');
-  return JSON.parse(raw);
+  const data = JSON.parse(raw);
+  if (!data.stats) data.stats = {};
+  return data;
 }
 
 function saveData(data) {
@@ -28,4 +33,12 @@ function formatDuree(ms) {
   return `${heures}h ${minutes}min`;
 }
 
-module.exports = { loadData, saveData, formatDuree };
+// Incrémente le compteur de services terminés pour un utilisateur
+function incrementerServices(data, userId) {
+  if (!data.stats[userId]) {
+    data.stats[userId] = { totalServices: 0 };
+  }
+  data.stats[userId].totalServices += 1;
+}
+
+module.exports = { loadData, saveData, formatDuree, incrementerServices };
